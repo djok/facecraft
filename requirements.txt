@@ -1,0 +1,32 @@
+# Facecraft - AI Portrait Processing API
+# Core dependencies
+
+# Web framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-multipart>=0.0.6
+
+# Image processing
+opencv-python>=4.8.0
+numpy>=1.24.0,<2.0
+Pillow>=10.0.0
+
+# Background removal
+rembg[cpu]>=2.0.50
+
+# Face detection and alignment
+dlib>=19.24.0
+
+# Deep learning (CPU version)
+torch==2.0.1
+torchvision==0.15.2
+
+# Face restoration (CodeFormer)
+basicsr==1.4.2
+facexlib>=0.3.0
+realesrgan>=0.3.0
+lpips>=0.1.4
+kornia>=0.7.0
+einops>=0.7.0

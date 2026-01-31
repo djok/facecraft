@@ -1,0 +1,138 @@
+# =============================================================================
+# Facecraft - AI Portrait Processing API (GPU Version)
+# Multi-stage build with CUDA support and all models bundled
+# =============================================================================
+
+# =============================================================================
+# Stage 1: Model Downloader
+# =============================================================================
+FROM python:3.11-slim AS model-downloader
+
+WORKDIR /models
+
+# Install download tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    bzip2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download dlib shape predictor (~60MB compressed, ~95MB uncompressed)
+RUN wget -q http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 \
+    && bunzip2 shape_predictor_68_face_landmarks.dat.bz2 \
+    && echo "Downloaded: shape_predictor_68_face_landmarks.dat"
+
+# Download CodeFormer model (~350MB)
+RUN mkdir -p codeformer \
+    && wget -q https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth -O codeformer/codeformer.pth \
+    && echo "Downloaded: codeformer.pth"
+
+# Pre-cache rembg u2net_human_seg model (~170MB)
+RUN pip install --no-cache-dir "rembg[cpu]" \
+    && python -c "from rembg import new_session; new_session('u2net_human_seg')" \
+    && cp -r /root/.u2net /models/u2net \
+    && echo "Downloaded: u2net_human_seg model"
+
+# =============================================================================
+# Stage 2: Build Dependencies (CUDA)
+# =============================================================================
+FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04 AS builder
+
+# Install Python and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
+    python3-pip \
+    cmake \
+    build-essential \
+    libopenblas-dev \
+    liblapack-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+
+WORKDIR /app
+
+# Copy requirements and build wheels
+COPY requirements.txt .
+COPY requirements-gpu.txt .
+
+# Install with GPU support
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip wheel --no-cache-dir --wheel-dir /wheels \
+    -r requirements.txt \
+    -r requirements-gpu.txt
+
+# =============================================================================
+# Stage 3: GPU Production Runtime
+# =============================================================================
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04 AS production
+
+LABEL maintainer="OBVT Toolbox"
+LABEL description="Facecraft - AI Portrait Processing API (GPU/CUDA)"
+LABEL version="1.0.0"
+
+WORKDIR /app
+
+# Install Python and runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3-pip \
+    libopenblas0 \
+    liblapack3 \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+
+# Copy and install wheels
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache-dir /wheels/* \
+    && rm -rf /wheels
+
+# Create non-root user first
+RUN useradd -m -u 1000 appuser
+
+# Copy pre-downloaded models
+COPY --from=model-downloader /models/shape_predictor_68_face_landmarks.dat /app/models/
+COPY --from=model-downloader /models/codeformer/ /app/models/codeformer/
+COPY --from=model-downloader /models/u2net /home/appuser/.u2net
+
+# Copy application code
+COPY src/ /app/src/
+
+# Create directories and set permissions
+RUN mkdir -p /app/uploads /app/processed /app/logs \
+    && chown -R appuser:appuser /app /home/appuser/.u2net
+
+# Set environment variables
+ENV PYTHONPATH=/app/src \
+    PYTHONUNBUFFERED=1 \
+    FACECRAFT_MODELS_DIR=/app/models \
+    FACECRAFT_HOST=0.0.0.0 \
+    FACECRAFT_PORT=8000 \
+    FACECRAFT_WORKERS=1 \
+    FACECRAFT_DEVICE=cuda \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Switch to non-root user
+USER appuser
+
+# Default command
+CMD ["python", "-m", "uvicorn", "facecraft.main:app", "--host", "0.0.0.0", "--port", "8000"]

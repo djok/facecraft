@@ -1,0 +1,10 @@
+# Facecraft - GPU-specific dependencies
+# These override CPU versions with CUDA support
+
+# PyTorch with CUDA 11.8
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.0.1+cu118
+torchvision==0.15.2+cu118
+
+# GPU-accelerated ONNX Runtime for rembg
+onnxruntime-gpu>=1.15.0

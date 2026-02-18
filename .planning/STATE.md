@@ -9,29 +9,30 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 1 of 3 (Dockerfile Hardening)
-Plan: 2 of 2 in current phase
-Status: All plans executed, awaiting verification
-Last activity: 2026-02-18 — Phase 1 plans executed (2/2 complete)
+Phase: 2 of 3 (Build, Verify, and Orchestrate)
+Plan: 1 of 2 in current phase (02-01 complete, 02-02 next)
+Status: Wave 1 complete (Docker images built and verified), Wave 2 starting (docker-compose.yml)
+Last activity: 2026-02-18 — Plan 02-01 complete: both Docker images built and verified
 
-Progress: [███░░░░░░░] 30%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 2.5 min
-- Total execution time: 5 min
+- Total plans completed: 3
+- Average duration: 5.7 min
+- Total execution time: 17 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 2 | 5 min | 2.5 min |
+| 2 | 1 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min
-- Trend: Consistent
+- Last 5 plans: 3min, 2min, 12min
+- Trend: Plan 02-01 longer due to Docker builds (~600MB model downloads + dlib compilation)
 
 *Updated after each plan completion*
 
@@ -54,7 +55,7 @@ None yet.
 ### Blockers/Concerns
 
 - Phase 1: SHA256 hashes computed and embedded in both Dockerfiles (resolved)
-- Phase 2: Post-optimization image sizes are targets (<8GB CPU, <12GB GPU), not measured guarantees — measure during Phase 2 build
+- Phase 2: Image sizes measured — CPU 4.08 GB (under 8 GB target), GPU 13.8 GB (slightly over 12 GB target, accepted as informational)
 
 ## Session Continuity
 

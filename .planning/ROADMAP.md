@@ -12,8 +12,8 @@ Three phases transform the existing functional Dockerfiles into a professional D
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Dockerfile Hardening** - Patch the five concrete gaps in existing Dockerfiles so both images are correct and production-ready to build
-- [ ] **Phase 2: Build, Verify, and Orchestrate** - Build both images, run the verification checklist, then write and test docker-compose.yml
+- [x] **Phase 1: Dockerfile Hardening** - Patch the five concrete gaps in existing Dockerfiles so both images are correct and production-ready to build
+- [x] **Phase 2: Build, Verify, and Orchestrate** - Build both images, run the verification checklist, then write and test docker-compose.yml
 - [ ] **Phase 3: Publish and Document** - Push images to Docker Hub and rewrite README for Hub-first quickstart
 
 ## Phase Details
@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans in 1 wave
 
 Plans:
-- [ ] 01-01: Patch Dockerfile.cpu — CPU-only wheels, SHA256 checksums, OCI labels, HEALTHCHECK
-- [ ] 01-02: Patch Dockerfile.gpu — SHA256 checksums, OCI labels, HEALTHCHECK, .dockerignore, Makefile update-checksums
+- [x] 01-01: Patch Dockerfile.cpu — CPU-only wheels, SHA256 checksums, OCI labels, HEALTHCHECK
+- [x] 01-02: Patch Dockerfile.gpu — SHA256 checksums, OCI labels, HEALTHCHECK, .dockerignore, Makefile update-checksums
 
 ### Phase 2: Build, Verify, and Orchestrate
 **Goal**: Both Docker images are built, verified self-contained and correct, and a working docker-compose.yml exists for production deployment
@@ -46,8 +46,8 @@ Plans:
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 02-01-PLAN.md — Build both Docker images (CPU + GPU) and run full verification checklist (air-gap, non-root, CPU-only PyTorch, OCI labels)
-- [ ] 02-02-PLAN.md — Write docker-compose.yml with CPU and GPU profiles, inline env var docs, named volumes, GPU device reservation — validate syntax and test CPU profile
+- [x] 02-01-PLAN.md — Build both Docker images (CPU + GPU) and run full verification checklist (air-gap, non-root, CPU-only PyTorch, OCI labels)
+- [x] 02-02-PLAN.md — Write docker-compose.yml with CPU and GPU profiles, inline env var docs, named volumes, GPU device reservation — validate syntax and test CPU profile
 
 ### Phase 3: Publish and Document
 **Goal**: Images are live on Docker Hub and the README gives any developer everything they need to pull and run Facecraft immediately
@@ -72,6 +72,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dockerfile Hardening | 0/2 | Not started | - |
-| 2. Build, Verify, and Orchestrate | 0/2 | Not started | - |
+| 1. Dockerfile Hardening | 2/2 | Complete | 2026-02-18 |
+| 2. Build, Verify, and Orchestrate | 2/2 | Complete | 2026-02-18 |
 | 3. Publish and Document | 0/3 | Not started | - |

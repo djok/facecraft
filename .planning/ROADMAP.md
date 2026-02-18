@@ -43,11 +43,11 @@ Plans:
   2. `docker run --rm djok/facecraft:cpu whoami` prints `appuser` — the image runs as a non-root user
   3. `docker compose --profile cpu up` starts the API and the `/health` endpoint returns 200
   4. `docker compose --profile gpu up` starts the GPU service with correct `deploy.resources.reservations.devices` syntax — no compose errors on parse
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 02-01: Build both images locally and run the full verification checklist
-- [ ] 02-02: Write docker-compose.yml with CPU and GPU profiles, inline env var comments, and volume mounts — test both profiles
+- [ ] 02-01-PLAN.md — Build both Docker images (CPU + GPU) and run full verification checklist (air-gap, non-root, CPU-only PyTorch, OCI labels)
+- [ ] 02-02-PLAN.md — Write docker-compose.yml with CPU and GPU profiles, inline env var docs, named volumes, GPU device reservation — validate syntax and test CPU profile
 
 ### Phase 3: Publish and Document
 **Goal**: Images are live on Docker Hub and the README gives any developer everything they need to pull and run Facecraft immediately

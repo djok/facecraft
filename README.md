@@ -2,76 +2,130 @@
 
 AI-powered portrait processing API with background removal, face detection, alignment, and enhancement.
 
-## Features
-
-- **Background Removal** - AI-powered with u2net_human_seg model
-- **Face Detection** - Accurate detection using dlib
-- **Face Alignment** - Automatic alignment based on eye positions
-- **Face Enhancement** - Quality restoration with CodeFormer
-- **Photo Enhancement** - Auto exposure, white balance, sharpening
-- **Oval Mask** - Professional portrait masks with feathering
-- **Adaptive Compression** - Smart JPEG compression for size limits
-
 ## Quick Start
 
-### Docker (Recommended)
+Pull and run from Docker Hub:
 
-**CPU Version:**
 ```bash
-docker build -f docker/Dockerfile.cpu -t facecraft:cpu .
-docker run -p 8000:8000 facecraft:cpu
+docker run -p 8000:8000 djok/facecraft:cpu
 ```
 
-**GPU Version (requires nvidia-docker):**
+GPU version (requires NVIDIA Container Toolkit):
+
 ```bash
-docker build -f docker/Dockerfile.gpu -t facecraft:gpu .
-docker run --gpus all -p 8000:8000 facecraft:gpu
+docker run --gpus all -p 8000:8000 djok/facecraft:gpu
 ```
 
-### Test the API
+Verify it is running:
 
 ```bash
-# Health check
 curl http://localhost:8000/health
-
-# Process an image
-curl -X POST http://localhost:8000/api/v1/process \
-  -F "file=@photo.jpg" \
-  -o result.json
-
-# Quick processing (returns image directly)
-curl -X POST http://localhost:8000/api/v1/process/quick \
-  -F "file=@photo.jpg" \
-  -o processed.png
 ```
 
-## API Documentation
+Process a portrait:
 
-Interactive documentation available at:
-- **Swagger UI**: http://localhost:8000/docs
-- **OpenAPI spec**: http://localhost:8000/openapi.json
+```bash
+curl -X POST http://localhost:8000/api/v1/process/quick \
+  -F "file=@photo.jpg" -o processed.png
+```
+
+Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+## Performance
+
+| Version | Image | Avg. Time/Image | Speedup |
+|---------|-------|-----------------|---------|
+| CPU | `djok/facecraft:cpu` | ~1.45s | 1x (baseline) |
+| GPU | `djok/facecraft:gpu` | ~0.43s | **3.4x faster** |
+
+*Tested on: AMD Ryzen 9 7900 12-Core (24 threads) @ 5.4 GHz, 32 GB DDR5, NVIDIA RTX 4090 (24 GB VRAM), Linux (WSL2). 5 portrait images, 648x648 output, background removal + face detection + alignment.*
+
+### Detailed Results
+
+**CPU Version (`djok/facecraft:cpu`)**
+
+```text
+Test 1: 1.52s
+Test 2: 1.41s
+Test 3: 1.43s
+Test 4: 1.46s
+Test 5: 1.44s
+Average: 1.45s
+```
+
+**GPU Version (`djok/facecraft:gpu`)**
+
+```text
+Test 1: 0.50s (includes warmup)
+Test 2: 0.42s
+Test 3: 0.41s
+Test 4: 0.45s
+Test 5: 0.40s
+Average: 0.43s
+```
+
+### Recommendations
+
+- **Development / low volume**: CPU version is sufficient
+- **Production / high volume**: GPU version recommended (3x+ faster)
+- **Batch processing**: GPU version with parallel requests
 
 ## API Endpoints
 
-### Health & Status
+### Health and Status
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Basic health check (liveness probe) |
-| `/ready` | GET | Readiness check (models loaded) |
-| `/status` | GET | Detailed status with device info and statistics |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Basic health check (liveness probe) |
+| GET | `/ready` | Readiness check (models loaded) |
+| GET | `/status` | Detailed status with device info and statistics |
 
 ### Processing
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/process` | POST | Process single image with full options |
-| `/api/v1/process/quick` | POST | Quick processing, returns image directly |
-| `/api/v1/process/batch` | POST | Process multiple images |
-| `/api/v1/download/{job_id}/{format}` | GET | Download processed image (png/jpg) |
-| `/api/v1/jobs/{job_id}` | DELETE | Delete job files |
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/v1/process` | Process single image with full options |
+| POST | `/api/v1/process/quick` | Quick processing, returns PNG directly |
+| POST | `/api/v1/process/batch` | Process multiple images |
+| GET | `/api/v1/download/{job_id}/{format}` | Download processed image (`png` or `jpg`) |
+| DELETE | `/api/v1/jobs/{job_id}` | Delete job files |
 
-## Usage Examples
+### Examples
+
+Health check:
+
+```bash
+curl http://localhost:8000/health
+```
+
+Quick processing (returns PNG directly):
+
+```bash
+curl -X POST http://localhost:8000/api/v1/process/quick \
+  -F "file=@photo.jpg" -o processed.png
+```
+
+Full processing with custom options:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/process \
+  -F "file=@photo.jpg" \
+  -F "width=400" \
+  -F "height=400" \
+  -F "background_r=255" \
+  -F "background_g=255" \
+  -F "background_b=255" \
+  -F "face_margin=0.4"
+```
+
+Batch processing:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/process/batch \
+  -F "files=@photo1.jpg" \
+  -F "files=@photo2.jpg" \
+  -F "files=@photo3.jpg"
+```
 
 ### Python
 
@@ -95,20 +149,6 @@ if result["success"]:
         f.write(png_response.content)
 ```
 
-### cURL
-
-```bash
-# With custom options
-curl -X POST http://localhost:8000/api/v1/process \
-  -F "file=@photo.jpg" \
-  -F "width=400" \
-  -F "height=400" \
-  -F "background_r=255" \
-  -F "background_g=255" \
-  -F "background_b=255" \
-  -F "face_margin=0.4"
-```
-
 ### JavaScript
 
 ```javascript
@@ -126,85 +166,128 @@ if (result.success) {
 }
 ```
 
-## Configuration
+## Environment Variables
 
-All settings can be configured via environment variables with the `FACECRAFT_` prefix.
+All settings use the `FACECRAFT_` prefix and can be passed via `-e` flags or an env file.
+
+### Server
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `FACECRAFT_HOST` | 0.0.0.0 | Server host |
-| `FACECRAFT_PORT` | 8000 | Server port |
-| `FACECRAFT_DEVICE` | auto | Device: auto, cpu, cuda |
-| `FACECRAFT_DEFAULT_WIDTH` | 648 | Default output width |
-| `FACECRAFT_DEFAULT_HEIGHT` | 648 | Default output height |
-| `FACECRAFT_DEFAULT_FACE_MARGIN` | 0.3 | Margin around face |
-| `FACECRAFT_DEFAULT_OVAL_MASK` | true | Apply oval mask |
-| `FACECRAFT_CLEANUP_AGE_HOURS` | 24 | Auto-cleanup old files |
+| `FACECRAFT_HOST` | `0.0.0.0` | Server bind address |
+| `FACECRAFT_PORT` | `8000` | Server port |
+| `FACECRAFT_WORKERS` | `1` | Number of Uvicorn workers |
+| `FACECRAFT_DEBUG` | `false` | Enable debug mode (hot reload) |
+| `FACECRAFT_LOG_LEVEL` | `INFO` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 
-See [.env.example](.env.example) for all available options.
+### Device
 
-## Docker Images
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_DEVICE` | `auto` | Compute device: `auto`, `cpu`, `cuda`, `cuda:0` |
 
-| Image | Base | Size | Use Case |
-|-------|------|------|----------|
-| `facecraft:cpu` | python:3.11-slim | ~16.6 GB | Standard deployment |
-| `facecraft:gpu` | nvidia/cuda:12.1 | ~23.5 GB | CUDA acceleration |
+### Model Paths
 
-All models are bundled in the image - no downloads on startup.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_MODELS_DIR` | `/app/models` | Path to model files directory |
+| `FACECRAFT_PREDICTOR_PATH` | (auto) | Override path to dlib shape predictor |
+| `FACECRAFT_CODEFORMER_PATH` | (auto) | Override path to CodeFormer model |
 
-## Performance Benchmarks
+### Processing Defaults
 
-### Test Hardware
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_DEFAULT_WIDTH` | `648` | Default output image width |
+| `FACECRAFT_DEFAULT_HEIGHT` | `648` | Default output image height |
+| `FACECRAFT_DEFAULT_BACKGROUND_R` | `240` | Default background red channel (0-255) |
+| `FACECRAFT_DEFAULT_BACKGROUND_G` | `240` | Default background green channel (0-255) |
+| `FACECRAFT_DEFAULT_BACKGROUND_B` | `240` | Default background blue channel (0-255) |
+| `FACECRAFT_DEFAULT_FACE_MARGIN` | `0.3` | Margin around detected face (0.0-1.0) |
+| `FACECRAFT_DEFAULT_OVAL_MASK` | `true` | Apply oval mask by default |
+| `FACECRAFT_DEFAULT_ENHANCE_FIDELITY` | `0.7` | CodeFormer fidelity weight (0.0-1.0) |
 
-| Component | Specification |
-|-----------|---------------|
-| **CPU** | AMD Ryzen 9 7900 12-Core (24 threads) @ 5.4 GHz |
-| **RAM** | 32 GB DDR5 |
-| **GPU** | NVIDIA GeForce RTX 4090 (24 GB VRAM) |
-| **OS** | Linux (WSL2 on Windows) |
+### Storage
 
-### Processing Time Comparison
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_UPLOAD_DIR` | `/app/uploads` | Directory for uploaded files |
+| `FACECRAFT_OUTPUT_DIR` | `/app/processed` | Directory for processed output |
+| `FACECRAFT_MAX_UPLOAD_SIZE_MB` | `20` | Maximum upload file size in MB |
+| `FACECRAFT_CLEANUP_AGE_HOURS` | `24` | Auto-delete files older than N hours |
 
-| Version | Avg. Time/Image | Speedup |
-|---------|-----------------|---------|
-| **CPU** | ~1.45 seconds | 1x (baseline) |
-| **GPU** | ~0.43 seconds | **3.4x faster** |
+### Limits
 
-*Benchmark: 5 portrait images, 648x648 output, background removal + face detection + alignment.*
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_MAX_CONCURRENT_JOBS` | `4` | Maximum parallel processing jobs |
+| `FACECRAFT_BATCH_MAX_FILES` | `50` | Maximum files per batch request |
 
-### Detailed Results
+### Security
 
-**CPU Version (facecraft:cpu)**
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FACECRAFT_CORS_ORIGINS` | `*` | Allowed CORS origins (comma-separated) |
+| `FACECRAFT_API_KEY` | (none) | Optional API key for authentication |
+
+## Bundled Models
+
+| Model | File | Size | Purpose |
+|-------|------|------|---------|
+| dlib shape predictor | `shape_predictor_68_face_landmarks.dat` | ~95 MB | Face landmark detection (68 points) |
+| CodeFormer | `codeformer.pth` | ~350 MB | AI face quality enhancement |
+| u2net | `u2net_human_seg.onnx` | ~170 MB | Background removal segmentation |
+
+All models are bundled in the Docker image. No downloads on first run.
+
+## Image Sizes
+
+| Tag | Uncompressed | Contents |
+|-----|-------------|----------|
+| `djok/facecraft:cpu` | 4.08 GB | PyTorch 2.0.1 CPU (~1.8 GB) + models (~615 MB) + runtime |
+| `djok/facecraft:gpu` | 13.8 GB | CUDA 12.1 runtime + PyTorch+CUDA (~5.9 GB) + models (~615 MB) |
+
+All models are bundled -- no internet access required at runtime. Compressed sizes on Docker Hub will be smaller than the uncompressed values above.
+
+## Volumes and Data Persistence
+
+Mount named volumes to persist uploaded and processed files across container restarts:
+
+```bash
+docker run -p 8000:8000 \
+  -v facecraft-uploads:/app/uploads \
+  -v facecraft-output:/app/processed \
+  djok/facecraft:cpu
 ```
-Test 1: 1.52s
-Test 2: 1.41s
-Test 3: 1.43s
-Test 4: 1.46s
-Test 5: 1.44s
-Average: 1.45s
+
+Bind mount a local directory for direct file access:
+
+```bash
+docker run -p 8000:8000 \
+  -v ./my-uploads:/app/uploads \
+  -v ./my-output:/app/processed \
+  djok/facecraft:cpu
 ```
 
-**GPU Version (facecraft:gpu)**
+The `docker-compose.yml` in this repository already configures named volumes (`uploads` and `processed`) for both services.
+
+## Docker Compose
+
+Run with profiles:
+
+```bash
+docker compose --profile cpu up -d
+docker compose --profile gpu up -d
 ```
-Test 1: 0.50s (includes warmup)
-Test 2: 0.42s
-Test 3: 0.41s
-Test 4: 0.45s
-Test 5: 0.40s
-Average: 0.43s
+
+Stop:
+
+```bash
+docker compose --profile cpu down
+docker compose --profile gpu down
 ```
 
-### Recommendations
-
-- **Development/Low volume**: CPU version is sufficient
-- **Production/High volume**: GPU version recommended (3x+ faster)
-- **Batch processing**: GPU version with parallel requests
-
-## Models Included
-
-- **dlib shape_predictor_68_face_landmarks.dat** (~95MB) - Face landmark detection
-- **CodeFormer codeformer.pth** (~350MB) - Face quality enhancement
-- **u2net_human_seg** (~170MB) - Background removal
+Both profiles share port 8000 -- run only one at a time.
 
 ## Development
 

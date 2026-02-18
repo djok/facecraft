@@ -2,6 +2,9 @@
 .git
 .gitignore
 
+# Planning
+.planning
+
 # Python
 __pycache__
 *.py[cod]

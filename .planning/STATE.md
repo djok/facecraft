@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 3 of 3 (Publish and Document)
-Plan: 2 of 3 in current phase (03-02 complete)
-Status: README.md rewritten with Hub-first documentation structure. Plans 03-01 and 03-03 remaining.
-Last activity: 2026-02-18 — Plan 03-02 complete: Hub-first README with all 7 DOCS requirements
+Plan: 3 of 3 in current phase (03-01 and 03-02 complete)
+Status: Both Docker images pushed to Docker Hub and manifest-verified. Plan 03-03 (smoke test) remaining.
+Last activity: 2026-02-18 — Plan 03-01 complete: CPU and GPU images published to Docker Hub
 
-Progress: [████████░░] 80%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 4.4 min
-- Total execution time: 22 min
+- Total plans completed: 6
+- Average duration: 5.3 min
+- Total execution time: 32 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████░░] 80%
 |-------|-------|-------|----------|
 | 1 | 2 | 5 min | 2.5 min |
 | 2 | 2 | 15 min | 7.5 min |
-| 3 | 1 | 2 min | 2 min |
+| 3 | 2 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min, 12min, 3min, 2min
-- Trend: Documentation plans are fast; Docker builds remain the time-intensive step
+- Last 5 plans: 2min, 12min, 3min, 2min, 10min
+- Trend: Docker push (10 min) dominated by upload time for 13.8 GB GPU image
 
 *Updated after each plan completion*
 
@@ -55,6 +55,7 @@ Recent decisions affecting current work:
 - Phase 3: README env vars grouped into 6 logical categories (Server, Device, Model Paths, Processing Defaults, Storage, Limits, Security)
 - Phase 3: Hub-first README structure — docker run one-liner within first 10 lines, build instructions in Development section
 - Phase 3: README kept at 9.2 KB for Docker Hub full_description compatibility (limit 25 KB)
+- Phase 3: No :latest tag pushed -- only :cpu and :gpu per locked decision; pre-existing :latest on Hub left untouched
 
 ### Pending Todos
 
@@ -68,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-02-PLAN.md (Hub-first README). Plans 03-01 and 03-03 remaining.
+Stopped at: Completed 03-01-PLAN.md (Docker Hub publish). Plan 03-03 remaining.
 Resume file: None

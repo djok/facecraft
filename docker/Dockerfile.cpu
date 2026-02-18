@@ -10,27 +10,33 @@ FROM python:3.11-slim AS model-downloader
 
 WORKDIR /models
 
+# SHA256 checksums for model integrity verification
+# Run `make update-checksums` to recompute after model source changes
+ARG SHAPE_PREDICTOR_SHA256=fbdc2cb80eb9aa7a758672cbfdda32ba6300efe9b6e6c7a299ff7e736b11b92f
+ARG CODEFORMER_SHA256=1009e537e0c2a07d4cabce6355f53cb66767cd4b4297ec7a4a64ca4b8a5684b7
+ARG U2NET_SHA256=01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c
+
 # Install download tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     bzip2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Download dlib shape predictor (~60MB compressed, ~95MB uncompressed)
+# Download and verify dlib shape predictor (~60MB compressed, ~95MB uncompressed)
 RUN wget -q http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 \
     && bunzip2 shape_predictor_68_face_landmarks.dat.bz2 \
-    && echo "Downloaded: shape_predictor_68_face_landmarks.dat"
+    && echo "${SHAPE_PREDICTOR_SHA256}  shape_predictor_68_face_landmarks.dat" | sha256sum -c --quiet
 
-# Download CodeFormer model (~350MB)
+# Download and verify CodeFormer model (~350MB)
 RUN mkdir -p codeformer \
     && wget -q https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth -O codeformer/codeformer.pth \
-    && echo "Downloaded: codeformer.pth"
+    && echo "${CODEFORMER_SHA256}  codeformer/codeformer.pth" | sha256sum -c --quiet
 
-# Pre-cache rembg u2net_human_seg model (~170MB)
+# Download and verify rembg u2net_human_seg model (~170MB)
 RUN pip install --no-cache-dir "rembg[cpu]" \
     && python -c "from rembg import new_session; new_session('u2net_human_seg')" \
-    && cp -r /root/.u2net /models/u2net \
-    && echo "Downloaded: u2net_human_seg model"
+    && echo "${U2NET_SHA256}  /root/.u2net/u2net_human_seg.onnx" | sha256sum -c --quiet \
+    && cp -r /root/.u2net /models/u2net
 
 # =============================================================================
 # Stage 2: Build Dependencies
@@ -50,16 +56,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and build wheels
 COPY requirements.txt .
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+RUN pip wheel --no-cache-dir --wheel-dir /wheels \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r requirements.txt
 
 # =============================================================================
 # Stage 3: Production Runtime
 # =============================================================================
 FROM python:3.11-slim AS production
 
-LABEL maintainer="OBVT Toolbox"
-LABEL description="Facecraft - AI Portrait Processing API (CPU)"
-LABEL version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/djok/facecraft" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.description="Facecraft - AI Portrait Processing API (CPU)" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.title="facecraft" \
+      org.opencontainers.image.vendor="OBVT Toolbox"
 
 WORKDIR /app
 
@@ -109,8 +120,8 @@ ENV PYTHONPATH=/app/src \
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=180s --retries=3 \
+    CMD curl -f http://localhost:8000/ready || exit 1
 
 # Switch to non-root user
 USER appuser

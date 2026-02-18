@@ -59,5 +59,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Roadmap and state initialized — ready for /gsd:plan-phase 1
-Resume file: None
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-dockerfile-hardening/01-CONTEXT.md

@@ -58,12 +58,12 @@ Plans:
   2. The README opens with a working `docker run` one-liner and a performance benchmark table before any other content
   3. The README contains a complete environment variable reference table, a bundled models inventory table, and an image size transparency section
   4. A smoke test passes on the pulled Hub image — `/health` returns 200 and a test portrait image processes successfully end-to-end
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 03-01: Push `:cpu` and `:gpu` tags to Docker Hub (no `:latest`), sync Hub description
-- [ ] 03-02: Rewrite README.md in English with Hub-first quickstart, benchmarks, model table, env var reference, image size, volume examples, API overview
-- [ ] 03-03: Run smoke test against pulled Hub images — verify `/health` 200 and successful image processing
+- [ ] 03-01-PLAN.md — Push :cpu and :gpu images to Docker Hub (docker login + docker push, no :latest tag)
+- [ ] 03-02-PLAN.md — Rewrite README.md with Hub-first quickstart, benchmarks, model table, env var reference, image sizes, volume examples, API overview
+- [ ] 03-03-PLAN.md — Smoke test pulled Hub image (health + processing) and sync README to Docker Hub description
 
 ## Progress
 

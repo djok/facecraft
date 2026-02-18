@@ -1,0 +1,77 @@
+# Roadmap: Facecraft — Professional Docker Release
+
+## Overview
+
+Three phases transform the existing functional Dockerfiles into a professional Docker Hub release. Phase 1 hardens the Dockerfiles (CPU wheel source, model checksums, OCI labels, HEALTHCHECK). Phase 2 builds both images, verifies they are correct and self-contained, then wires up the Docker Compose orchestration layer. Phase 3 publishes both images to Docker Hub and rewrites the README for Hub-first consumption. The dependency chain is strict: correct Dockerfiles before building, built images before compose validation, stable image tags before writing documentation.
+
+## Phases
+
+**Phase Numbering:**
+- Integer phases (1, 2, 3): Planned milestone work
+- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+Decimal phases appear between their surrounding integers in numeric order.
+
+- [ ] **Phase 1: Dockerfile Hardening** - Patch the five concrete gaps in existing Dockerfiles so both images are correct and production-ready to build
+- [ ] **Phase 2: Build, Verify, and Orchestrate** - Build both images, run the verification checklist, then write and test docker-compose.yml
+- [ ] **Phase 3: Publish and Document** - Push images to Docker Hub and rewrite README for Hub-first quickstart
+
+## Phase Details
+
+### Phase 1: Dockerfile Hardening
+**Goal**: Both Dockerfiles are correct, optimized, and ready to produce publishable images — no bloat, no missing integrity checks, no missing metadata
+**Depends on**: Nothing (first phase)
+**Requirements**: DOCK-01, DOCK-02, DOCK-03, DOCK-04, DOCK-05, DOCK-06
+**Success Criteria** (what must be TRUE):
+  1. The CPU Dockerfile installs CPU-only PyTorch wheels — running `python -c "import torch; print(torch.version.cuda)"` inside the built image prints `None`
+  2. Each model download in both Dockerfiles has a SHA256 checksum verification step — if the checksum fails, the Docker build fails
+  3. Both Dockerfiles include OCI standard labels (`org.opencontainers.image.source`, `.version`, `.description`, `.licenses`)
+  4. A `.dockerignore` exists at repo root and excludes `.planning/`, `.git/`, `tests/`, `__pycache__/`, and `.env`
+  5. Both Dockerfiles have `HEALTHCHECK` configured with `--start-period=180s` targeting the `/ready` endpoint
+**Plans**: TBD
+
+Plans:
+- [ ] 01-01: Patch Dockerfile.cpu — CPU-only wheels, SHA256 checksums, OCI labels, HEALTHCHECK
+- [ ] 01-02: Patch Dockerfile.gpu — upgrade CUDA base, SHA256 checksums, OCI labels, HEALTHCHECK, .dockerignore
+
+### Phase 2: Build, Verify, and Orchestrate
+**Goal**: Both Docker images are built, verified self-contained and correct, and a working docker-compose.yml exists for production deployment
+**Depends on**: Phase 1
+**Requirements**: COMP-01, COMP-02, COMP-03, COMP-04
+**Success Criteria** (what must be TRUE):
+  1. `docker run --network none djok/facecraft:cpu` starts successfully — the container comes up without any internet access, proving all models are bundled
+  2. `docker run --rm djok/facecraft:cpu whoami` prints `appuser` — the image runs as a non-root user
+  3. `docker compose --profile cpu up` starts the API and the `/health` endpoint returns 200
+  4. `docker compose --profile gpu up` starts the GPU service with correct `deploy.resources.reservations.devices` syntax — no compose errors on parse
+**Plans**: TBD
+
+Plans:
+- [ ] 02-01: Build both images locally and run the full verification checklist
+- [ ] 02-02: Write docker-compose.yml with CPU and GPU profiles, inline env var comments, and volume mounts — test both profiles
+
+### Phase 3: Publish and Document
+**Goal**: Images are live on Docker Hub and the README gives any developer everything they need to pull and run Facecraft immediately
+**Depends on**: Phase 2
+**Requirements**: DOCS-01, DOCS-02, DOCS-03, DOCS-04, DOCS-05, DOCS-06, DOCS-07, PUBL-01, PUBL-02, PUBL-03, PUBL-04
+**Success Criteria** (what must be TRUE):
+  1. `docker pull djok/facecraft:cpu && docker run -p 8000:8000 djok/facecraft:cpu` works from a clean machine with zero additional steps
+  2. The README opens with a working `docker run` one-liner and a performance benchmark table before any other content
+  3. The README contains a complete environment variable reference table, a bundled models inventory table, and an image size transparency section
+  4. A smoke test passes on the pulled Hub image — `/health` returns 200 and a test portrait image processes successfully end-to-end
+**Plans**: TBD
+
+Plans:
+- [ ] 03-01: Push `:cpu` and `:gpu` tags to Docker Hub (no `:latest`), sync Hub description
+- [ ] 03-02: Rewrite README.md in English with Hub-first quickstart, benchmarks, model table, env var reference, image size, volume examples, API overview
+- [ ] 03-03: Run smoke test against pulled Hub images — verify `/health` 200 and successful image processing
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Dockerfile Hardening | 0/2 | Not started | - |
+| 2. Build, Verify, and Orchestrate | 0/2 | Not started | - |
+| 3. Publish and Document | 0/3 | Not started | - |

@@ -75,33 +75,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOCK-01 | — | Pending |
-| DOCK-02 | — | Pending |
-| DOCK-03 | — | Pending |
-| DOCK-04 | — | Pending |
-| DOCK-05 | — | Pending |
-| DOCK-06 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
-| DOCS-01 | — | Pending |
-| DOCS-02 | — | Pending |
-| DOCS-03 | — | Pending |
-| DOCS-04 | — | Pending |
-| DOCS-05 | — | Pending |
-| DOCS-06 | — | Pending |
-| DOCS-07 | — | Pending |
-| PUBL-01 | — | Pending |
-| PUBL-02 | — | Pending |
-| PUBL-03 | — | Pending |
-| PUBL-04 | — | Pending |
+| DOCK-01 | Phase 1 | Pending |
+| DOCK-02 | Phase 1 | Pending |
+| DOCK-03 | Phase 1 | Pending |
+| DOCK-04 | Phase 1 | Pending |
+| DOCK-05 | Phase 1 | Pending |
+| DOCK-06 | Phase 1 | Pending |
+| COMP-01 | Phase 2 | Pending |
+| COMP-02 | Phase 2 | Pending |
+| COMP-03 | Phase 2 | Pending |
+| COMP-04 | Phase 2 | Pending |
+| DOCS-01 | Phase 3 | Pending |
+| DOCS-02 | Phase 3 | Pending |
+| DOCS-03 | Phase 3 | Pending |
+| DOCS-04 | Phase 3 | Pending |
+| DOCS-05 | Phase 3 | Pending |
+| DOCS-06 | Phase 3 | Pending |
+| DOCS-07 | Phase 3 | Pending |
+| PUBL-01 | Phase 3 | Pending |
+| PUBL-02 | Phase 3 | Pending |
+| PUBL-03 | Phase 3 | Pending |
+| PUBL-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation*

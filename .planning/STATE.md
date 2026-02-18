@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** User pulls the Docker image and runs it — everything works immediately with zero configuration, zero internet downloads, zero manual model setup.
-**Current focus:** Phase 2 complete — Build, Verify, and Orchestrate
+**Current focus:** Phase 3 in progress — Publish and Document
 
 ## Current Position
 
-Phase: 2 of 3 (Build, Verify, and Orchestrate) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 2 fully complete. Both Docker images built, verified, and orchestrated with docker-compose.yml.
-Last activity: 2026-02-18 — Phase 2 complete: docker-compose.yml validated, CPU /health returns 200
+Phase: 3 of 3 (Publish and Document)
+Plan: 2 of 3 in current phase (03-02 complete)
+Status: README.md rewritten with Hub-first documentation structure. Plans 03-01 and 03-03 remaining.
+Last activity: 2026-02-18 — Plan 03-02 complete: Hub-first README with all 7 DOCS requirements
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 5 min
-- Total execution time: 20 min
+- Total plans completed: 5
+- Average duration: 4.4 min
+- Total execution time: 22 min
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [███████░░░] 70%
 |-------|-------|-------|----------|
 | 1 | 2 | 5 min | 2.5 min |
 | 2 | 2 | 15 min | 7.5 min |
+| 3 | 1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min, 12min, 3min
-- Trend: Docker builds are the time-intensive step; compose creation fast
+- Last 5 plans: 3min, 2min, 12min, 3min, 2min
+- Trend: Documentation plans are fast; Docker builds remain the time-intensive step
 
 *Updated after each plan completion*
 
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 - Phase 2: Both services profiled (no always-on service) to prevent port 8000 conflicts
 - Phase 2: Compose healthcheck targets `/health` (liveness); Dockerfile HEALTHCHECK targets `/ready` (readiness)
 - Phase 2: CPU service uses `FACECRAFT_DEVICE: "cpu"` (forced), GPU uses `"auto"` (detects GPU)
+- Phase 3: README env vars grouped into 6 logical categories (Server, Device, Model Paths, Processing Defaults, Storage, Limits, Security)
+- Phase 3: Hub-first README structure — docker run one-liner within first 10 lines, build instructions in Development section
+- Phase 3: README kept at 9.2 KB for Docker Hub full_description compatibility (limit 25 KB)
 
 ### Pending Todos
 
@@ -64,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 2 execution complete. Ready for Phase 3.
+Stopped at: Completed 03-02-PLAN.md (Hub-first README). Plans 03-01 and 03-03 remaining.
 Resume file: None

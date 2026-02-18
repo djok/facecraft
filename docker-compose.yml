@@ -1,0 +1,86 @@
+# =============================================================================
+# Facecraft - AI Portrait Processing API
+# Docker Compose orchestration with CPU and GPU profiles
+#
+# Usage:
+#   CPU:  docker compose --profile cpu up -d
+#   GPU:  docker compose --profile gpu up -d
+#   Stop: docker compose --profile cpu down
+#
+# Both profiles share port 8000 — run only one at a time.
+# =============================================================================
+
+services:
+  facecraft-cpu:
+    profiles: [cpu]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    image: djok/facecraft:cpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
+      - processed:/app/processed
+    environment:
+      # Bind address (always 0.0.0.0 inside container)
+      FACECRAFT_HOST: "0.0.0.0"
+      # API port
+      FACECRAFT_PORT: "8000"
+      # Uvicorn workers (increase for production load)
+      FACECRAFT_WORKERS: "1"
+      # Device: forced to CPU (no CUDA in this image)
+      FACECRAFT_DEVICE: "cpu"
+      # Logging level (DEBUG, INFO, WARNING, ERROR)
+      FACECRAFT_LOG_LEVEL: "INFO"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 180s
+      retries: 3
+    restart: unless-stopped
+
+  facecraft-gpu:
+    profiles: [gpu]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gpu
+    image: djok/facecraft:gpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
+      - processed:/app/processed
+    environment:
+      # Bind address (always 0.0.0.0 inside container)
+      FACECRAFT_HOST: "0.0.0.0"
+      # API port
+      FACECRAFT_PORT: "8000"
+      # Uvicorn workers (increase for production load)
+      FACECRAFT_WORKERS: "1"
+      # Device: auto-detect GPU (falls back to CPU if no GPU available)
+      FACECRAFT_DEVICE: "auto"
+      # Logging level (DEBUG, INFO, WARNING, ERROR)
+      FACECRAFT_LOG_LEVEL: "INFO"
+      # NVIDIA runtime configuration (also set in Dockerfile, repeated for clarity)
+      NVIDIA_VISIBLE_DEVICES: "all"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 180s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  uploads:
+  processed:

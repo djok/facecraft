@@ -28,11 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Both Dockerfiles include OCI standard labels (`org.opencontainers.image.source`, `.version`, `.description`, `.licenses`)
   4. A `.dockerignore` exists at repo root and excludes `.planning/`, `.git/`, `tests/`, `__pycache__/`, and `.env`
   5. Both Dockerfiles have `HEALTHCHECK` configured with `--start-period=180s` targeting the `/ready` endpoint
-**Plans**: TBD
+**Plans**: 2 plans in 1 wave
 
 Plans:
 - [ ] 01-01: Patch Dockerfile.cpu — CPU-only wheels, SHA256 checksums, OCI labels, HEALTHCHECK
-- [ ] 01-02: Patch Dockerfile.gpu — upgrade CUDA base, SHA256 checksums, OCI labels, HEALTHCHECK, .dockerignore
+- [ ] 01-02: Patch Dockerfile.gpu — SHA256 checksums, OCI labels, HEALTHCHECK, .dockerignore, Makefile update-checksums
 
 ### Phase 2: Build, Verify, and Orchestrate
 **Goal**: Both Docker images are built, verified self-contained and correct, and a working docker-compose.yml exists for production deployment

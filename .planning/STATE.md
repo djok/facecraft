@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** User pulls the Docker image and runs it — everything works immediately with zero configuration, zero internet downloads, zero manual model setup.
-**Current focus:** Phase 1 — Dockerfile Hardening
+**Current focus:** Phase 2 complete — Build, Verify, and Orchestrate
 
 ## Current Position
 
-Phase: 2 of 3 (Build, Verify, and Orchestrate)
-Plan: 1 of 2 in current phase (02-01 complete, 02-02 next)
-Status: Wave 1 complete (Docker images built and verified), Wave 2 starting (docker-compose.yml)
-Last activity: 2026-02-18 — Plan 02-01 complete: both Docker images built and verified
+Phase: 2 of 3 (Build, Verify, and Orchestrate) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 2 fully complete. Both Docker images built, verified, and orchestrated with docker-compose.yml.
+Last activity: 2026-02-18 — Phase 2 complete: docker-compose.yml validated, CPU /health returns 200
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 5.7 min
-- Total execution time: 17 min
+- Total plans completed: 4
+- Average duration: 5 min
+- Total execution time: 20 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 2 | 5 min | 2.5 min |
-| 2 | 1 | 12 min | 12 min |
+| 2 | 2 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min, 12min
-- Trend: Plan 02-01 longer due to Docker builds (~600MB model downloads + dlib compilation)
+- Last 5 plans: 3min, 2min, 12min, 3min
+- Trend: Docker builds are the time-intensive step; compose creation fast
 
 *Updated after each plan completion*
 
@@ -47,6 +47,10 @@ Recent decisions affecting current work:
 - Phase 1: GPU base image kept at CUDA 12.1.0 — research confirmed PyTorch 2.0.1 only has cu118 wheels, upgrading base provides no benefit
 - Phase 1: HEALTHCHECK must use `/ready` endpoint with `--start-period=180s` minimum
 - All phases: Never push `:latest` tag — only `:cpu` and `:gpu`
+- Phase 2: No `version:` key in docker-compose.yml — obsolete since Compose v2.25.0
+- Phase 2: Both services profiled (no always-on service) to prevent port 8000 conflicts
+- Phase 2: Compose healthcheck targets `/health` (liveness); Dockerfile HEALTHCHECK targets `/ready` (readiness)
+- Phase 2: CPU service uses `FACECRAFT_DEVICE: "cpu"` (forced), GPU uses `"auto"` (detects GPU)
 
 ### Pending Todos
 
@@ -60,5 +64,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 1 execution complete, awaiting verification
+Stopped at: Phase 2 execution complete. Ready for Phase 3.
 Resume file: None
